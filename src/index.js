@@ -1,11 +1,11 @@
 "use strict";
 
-import * as THREE from "./three.module.js";
+import * as THREE from "./lib/three.module.js";
 
-import {getHeightmapData} from "./utils.js";
+import {getHeightmapData} from "./lib/Utils.js";
 import TextureSplattingMaterial from "./TextureSplattingMaterial.js";
-import {OrbitControls} from "./OrbitControls.js";
-import Stats from "./stats.js";
+import {OrbitControls} from "./lib/OrbitControls.js";
+import Stats from "./lib/Stats.js";
 
 document.getElementById("mode").onclick = () => {
     camera.layers.toggle(0);
@@ -53,7 +53,7 @@ controls.maxPolarAngle = Math.PI;
 
 const stats = new Stats();
 stats.dom.style.position = 'absolute';
-stats.dom.style.margin = "5px 5px";
+stats.dom.style.margin = '5px 5px';
 document.body.appendChild(stats.dom);
 
 class TerrainGeometry extends THREE.PlaneGeometry {
@@ -70,7 +70,7 @@ class TerrainGeometry extends THREE.PlaneGeometry {
     }
 }
 
-const resScale = {x: 128, y: 128};
+const resScale = {x: 16, y: 16};
 const sizeScale = 10;
 
 const terrainImage = new Image();
