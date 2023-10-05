@@ -5,6 +5,7 @@ import * as THREE from "./three.module.js";
 import {getHeightmapData} from "./utils.js";
 import TextureSplattingMaterial from "./TextureSplattingMaterial.js";
 import {OrbitControls} from "./OrbitControls.js";
+import Stats from "./stats.js";
 
 document.getElementById("mode").onclick = () => {
     camera.layers.toggle(0);
@@ -21,12 +22,13 @@ renderer.setClearColor(white, 1.0);
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-camera.position.z += 10;
-camera.position.x += 10;
-camera.position.y += 10;
+const camera = new THREE.PerspectiveCamera(75, 16 / 9, 0.1, 5000);
+camera.position.z += 30;
+camera.position.x += 30;
+camera.position.y += 30;
 
-camera.layers.enable(0);
+camera.layers.disable(0);
+camera.layers.enable(1);
 
 camera.lookAt(0, 0, 0);
 
@@ -46,28 +48,41 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.screenSpacePanning = false;
 controls.minDistance = 0;
-controls.maxDistance = 100;
+controls.maxDistance = 1000;
 controls.maxPolarAngle = Math.PI;
 
+const stats = new Stats();
+stats.dom.style.position = 'absolute';
+stats.dom.style.margin = "5px 5px";
+document.body.appendChild(stats.dom);
+
 class TerrainGeometry extends THREE.PlaneGeometry {
-    constructor(size, resolution, height, image) {
-        super(size, size, resolution - 1, resolution - 1);
+    constructor(xSize, ySize, resolutionX, resolutionY, height, image) {
+        super(xSize, ySize, resolutionX - 1, resolutionY - 1);
 
         this.rotateX((Math.PI / 180) * -90);
 
-        const data = getHeightmapData(image, resolution);
+        const data = getHeightmapData(image, resolutionX, resolutionY);
 
-        for (let i = 0; i < data.length; i++) {this.attributes.position.setY(i, data[i] * height);}
+        for (let i = 0; i < data.length; i++) {
+            //this.attributes.position.setY(i, data[i] * height);
+        }
     }
 }
+
+const resScale = {x: 128, y: 128};
+const sizeScale = 10;
 
 const terrainImage = new Image();
 terrainImage.onload = () => {
 
     const size = 128;
-    const height = 5;
+    const height = 20;
 
-    const geometry = new TerrainGeometry(20, 128, height, terrainImage);
+    const geometry = new TerrainGeometry(
+        terrainImage.width / sizeScale, terrainImage.height / sizeScale,
+        resScale.x, resScale.y,
+        height, terrainImage);
 
     const grass = new THREE.TextureLoader().load('images/grass.png');
     const rock = new THREE.TextureLoader().load('images/rock.png');
@@ -120,9 +135,13 @@ function updateRendererSize() {
 }
 
 function loop() {
+    stats.begin();
+
     updateRendererSize();
     controls.update();
     renderer.render(scene, camera);
+
+    stats.end();
 }
 
 renderer.setAnimationLoop(loop);
